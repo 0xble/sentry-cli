@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+
+cli_bin="$HOME/.local/bin/sentry-cli"
+shim_bin="$HOME/.local/bin/sentry"
+
+[ -x "$cli_bin" ]
+"$cli_bin" --help >/dev/null
+
+if [ -x "$shim_bin" ]; then
+  "$shim_bin" --help >/dev/null
+fi
+
+echo "smoke ok: sentry-cli"

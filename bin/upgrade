@@ -1,6 +1,20 @@
-#!/bin/sh
-set -e
-cd "$(dirname "$0")/.."
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "$0")/.." && pwd)"
+install_link="$HOME/.local/bin/sentry-cli"
+install_path="$(python3 - <<'PY' "$install_link"
+import os
+import sys
+
+print(os.path.realpath(sys.argv[1]))
+PY
+)"
+
+cd "$repo_root"
 cargo build --release
-cp target/release/sentry-cli ~/.local/bin/sentry-cli
+mkdir -p "$(dirname "$install_path")"
+cp target/release/sentry-cli "$install_path"
+
 echo "installed sentry-cli from $(git describe --tags --always 2>/dev/null || git rev-parse --short HEAD)"
+"$HOME/.local/bin/sentry-cli" --version
