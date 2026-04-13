@@ -3,18 +3,26 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 install_link="$HOME/.local/bin/sentry-cli"
-install_path="$(python3 - <<'PY' "$install_link"
+
+if [ -L "$install_link" ] && [ -e "$install_link" ]; then
+  install_path="$(python3 - <<'PY' "$install_link"
 import os
 import sys
 
 print(os.path.realpath(sys.argv[1]))
 PY
 )"
+else
+  install_path="$install_link"
+  if [ -L "$install_link" ] && [ ! -e "$install_link" ]; then
+    unlink "$install_link"
+  fi
+fi
 
 cd "$repo_root"
 cargo build --release
 mkdir -p "$(dirname "$install_path")"
 cp target/release/sentry-cli "$install_path"
 
-echo "installed sentry-cli from $(git describe --tags --always 2>/dev/null || git rev-parse --short HEAD)"
-"$HOME/.local/bin/sentry-cli" --version
+echo "installed $install_path from $(git describe --tags --always 2>/dev/null || git rev-parse --short HEAD)"
+"$install_link" --version
