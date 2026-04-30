@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+bin_path="${SENTRY_CLI_INSTALL_PATH:-$HOME/.local/bin/sentry-cli}"
+expected_version=$(
+  awk -F '"' '/^version = / { print $2; exit }' "$repo_root/Cargo.toml"
+)
+version_output=$("$bin_path" --version)
+
+[ -x "$bin_path" ]
+printf '%s\n' "$version_output" | /usr/bin/grep -Fq "sentry-cli $expected_version"
+"$bin_path" --help >/dev/null
+
+echo "smoke ok: sentry-cli"
