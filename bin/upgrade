@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+bin_path="${SENTRY_CLI_INSTALL_PATH:-$HOME/.local/bin/sentry-cli}"
+real_bin_path="${SENTRY_CLI_REAL_BIN_PATH:-$HOME/.local/libexec/sentry-cli/sentry-cli}"
+
+mkdir -p "$(dirname -- "$bin_path")"
+mkdir -p "$(dirname -- "$real_bin_path")"
+cargo build --manifest-path "$repo_root/Cargo.toml" --release --locked
+cp "$repo_root/target/release/sentry-cli" "$real_bin_path"
+cat > "$bin_path" <<EOF
+#!/bin/sh
+exec "$real_bin_path" "\$@"
+EOF
+chmod +x "$bin_path" "$real_bin_path"
+
+echo "Installed $bin_path"
+"$bin_path" --version
