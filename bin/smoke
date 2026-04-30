@@ -6,9 +6,13 @@ bin_path="${SENTRY_CLI_INSTALL_PATH:-$HOME/.local/bin/sentry-cli}"
 expected_version=$(
   awk -F '"' '/^version = / { print $2; exit }' "$repo_root/Cargo.toml"
 )
-version_output=$("$bin_path" --version)
 
-[ -x "$bin_path" ]
+if [ ! -x "$bin_path" ]; then
+  echo "smoke failed: $bin_path is not executable" >&2
+  exit 1
+fi
+
+version_output=$("$bin_path" --version)
 printf '%s\n' "$version_output" | /usr/bin/grep -Fq "sentry-cli $expected_version"
 "$bin_path" --help >/dev/null
 
