@@ -3,7 +3,8 @@ set -eu
 
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 bin_path="${SENTRY_CLI_INSTALL_PATH:-$HOME/.local/bin/sentry-cli}"
-real_bin_path="${SENTRY_CLI_REAL_BIN_PATH:-$HOME/.local/libexec/sentry-cli/sentry-cli}"
+commit_hash=$(git -C "$repo_root" rev-parse --short HEAD)
+real_bin_path="${SENTRY_CLI_REAL_BIN_PATH:-$HOME/.local/libexec/sentry-cli/sentry-cli-$commit_hash}"
 
 mkdir -p "$(dirname -- "$bin_path")"
 mkdir -p "$(dirname -- "$real_bin_path")"
